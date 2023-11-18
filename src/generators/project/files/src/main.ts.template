@@ -1,0 +1,4 @@
+function InitModule(context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, initializer: nkruntime.Initializer)
+{
+    logger.info("<%= name %> initialized")
+}
