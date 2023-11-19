@@ -54,5 +54,6 @@
     "typescript": "~5.2.2",
     "verdaccio": "^5.0.4"
   },
-  "generators": "./generators.json"
+  "generators": "./generators.json",
+  "executors": "./executors.json"
 }
