@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Serve executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "configFileName": {
+      "type": "string",
+      "description": "The name of the config file to use.",
+      "x-completion-type": "file",
+      "x-priority": "important"
+    },
+    "migrateDatabase": {
+      "type": "boolean",
+      "description": "Whether to run database migrations before starting the server.",
+      "default": true
+    }
+  },
+  "required": ["configFileName"]
+}
