@@ -5,24 +5,33 @@ import {
   getWorkspaceLayout,
   ProjectConfiguration,
   Tree,
-  workspaceRoot,
-  writeJsonFile,
 } from "@nx/devkit"
 import * as path from "path"
 import { ProjectGeneratorSchema } from "./schema"
-import { installPackage } from "../../utils/package-manager"
+import { installPackage, installPackages } from "../../utils/package-manager"
 
 export async function projectGenerator(tree: Tree, options: ProjectGeneratorSchema) {
   const { name: projectName } = options
   const projectRoot = path.join(getWorkspaceLayout(tree).appsDir, projectName)
 
   addProjectConfiguration(tree, projectName, getProjectJsonContent(projectName, projectRoot))
-  writeJsonFile(
-    path.join(workspaceRoot, projectRoot, "package.json"),
-    getPackageJsonContent(projectName)
-  )
-  await installPackage(projectRoot, "github:heroiclabs/nakama-common", false)
-  await installPackage(projectRoot, "typescript", true)
+
+  await installPackage("", "github:heroiclabs/nakama-common", false)
+
+  const devDependencies = [
+    "@babel/core",
+    "@babel/plugin-external-helpers",
+    "@babel/preset-env",
+    "@rollup/plugin-babel",
+    "@rollup/plugin-commonjs",
+    "@rollup/plugin-json",
+    "@rollup/plugin-node-resolve",
+    "@rollup/plugin-typescript",
+    "rollup",
+    "tslib",
+  ]
+  await installPackages("", devDependencies, true)
+
   generateFiles(tree, path.join(__dirname, "files"), projectRoot, options)
   return formatFiles(tree)
 }
@@ -50,22 +59,6 @@ function getProjectJsonContent(projectName: string, projectRoot: string): Projec
         },
       },
     },
-  }
-}
-
-/**
- * Returns the content of the package.json file.
- */
-function getPackageJsonContent(projectName: string) {
-  return {
-    name: projectName,
-    version: "0.0.1",
-    description: "",
-    keywords: [],
-    author: "",
-    license: "ISC",
-    devDependencies: {},
-    dependencies: {},
   }
 }
 

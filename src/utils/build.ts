@@ -8,11 +8,10 @@ import { executeCommand } from "./exec"
  * @param projectRoot The path to the project root, relative to the workspace root.
  * @param outputPath The path to the output directory, relative to the workspace root.
  */
-async function compileTypeScript(projectRoot: string, outputPath: string) {
-  await executeCommand(
-    "tsc --outDir " + path.join(workspaceRoot, outputPath, "data", "modules"),
-    path.join(workspaceRoot, projectRoot)
-  )
+async function createBuild(projectRoot: string, outputPath: string) {
+  const outputFile = path.join(workspaceRoot, outputPath, "data", "modules", "main.js")
+  const command = `npx rollup -c --bundleConfigAsCjs --file ${outputFile}`
+  await executeCommand(command, path.join(workspaceRoot, projectRoot))
 }
 
 /**
@@ -28,4 +27,4 @@ function copyConfigFile(projectRoot: string, outputPath: string, configFileName:
   )
 }
 
-export { compileTypeScript, copyConfigFile }
+export { createBuild, copyConfigFile }

@@ -1,11 +1,8 @@
 {
-  "include": ["./src/**/*.ts"],
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es5",
-    "typeRoots": ["./node_modules"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  }
+    "esModuleInterop": true
+  },
+  "files": ["../../node_modules/nakama-runtime/index.d.ts"],
+  "include": ["src/**/*"]
 }

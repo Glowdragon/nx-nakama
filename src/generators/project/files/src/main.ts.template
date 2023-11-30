@@ -2,3 +2,5 @@ function InitModule(context: nkruntime.Context, logger: nkruntime.Logger, nakama
 {
     logger.info("<%= name %> initialized")
 }
+
+!InitModule && InitModule.bind(null);

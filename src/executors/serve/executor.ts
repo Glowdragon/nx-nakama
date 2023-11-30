@@ -1,27 +1,23 @@
 import { ServeExecutorSchema } from "./schema"
 import { spawn } from "child_process"
-import { ExecutorContext, workspaceRoot } from "@nx/devkit"
+import { ExecutorContext, getWorkspaceLayout, workspaceRoot } from "@nx/devkit"
 import { createAsyncIterable } from "@nx/devkit/src/utils/async-iterable"
 import * as path from "path"
-import { compileTypeScript, copyConfigFile } from "../../utils/build"
-import { installPackages } from "../../utils/package-manager"
+import { createBuild, copyConfigFile } from "../../utils/build"
 import { remove } from "fs-extra"
-import { directoryExists, listFiles } from "@nx/plugin/testing"
+import { listFiles } from "@nx/plugin/testing"
 import { executeCommand } from "../../utils/exec"
 import { getDatabaseAddresses } from "../../utils/nakama"
+import { FsTree } from "nx/src/generators/tree"
 
 export default async function* runExecutor(options: ServeExecutorSchema, context: ExecutorContext) {
   const { configFileName, migrateDatabase } = options
   const projectRoot = context.projectGraph.nodes[context.projectName].data.root
-  const outputPath = path.join("tmp", "nakama", context.projectName)
+  const appsDir = getWorkspaceLayout(new FsTree(workspaceRoot, false)).appsDir
+  const outputPath = path.join("tmp", appsDir, context.projectName)
 
-  // Install packages if necessary
-  if (!directoryExists(path.join(projectRoot, "node_modules"))) {
-    await installPackages(projectRoot)
-  }
-
-  // Compile TypeScript and copy config file
-  await compileTypeScript(projectRoot, outputPath)
+  // Create build and copy config file
+  await createBuild(projectRoot, outputPath)
   copyConfigFile(projectRoot, outputPath, configFileName)
 
   const configFile = path.join(projectRoot, configFileName)
@@ -62,11 +58,10 @@ export default async function* runExecutor(options: ServeExecutorSchema, context
 
       // Remove temporary files
       remove(outputPath)
-      if (listFiles("tmp/nakama").length === 0) {
-        remove("tmp/nakama")
-      }
-      if (listFiles("tmp").length === 0) {
-        remove("tmp")
+      for (let dir = outputPath; dir !== "tmp"; dir = path.dirname(dir)) {
+        if (listFiles(dir).length === 0) {
+          remove(dir)
+        }
       }
     }
     process.on("exit", () => killServer())
