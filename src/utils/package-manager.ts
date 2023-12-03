@@ -1,14 +1,14 @@
 import { executeCommand } from "./exec"
 import { join } from "path"
 import { detectPackageManager, workspaceRoot } from "@nx/devkit"
-import * as path from "path"
+import { posixJoin } from "./posix"
 
 async function installPackages(
   projectRoot: string,
   packageNames: string[] | undefined = undefined,
   isDevDependency: boolean = false
 ) {
-  const packageManager = detectPackageManager(path.join(workspaceRoot))
+  const packageManager = detectPackageManager(posixJoin(workspaceRoot))
   let command = packageManager === "yarn" ? "yarn" : "npm install"
   if (packageNames !== undefined) {
     command =

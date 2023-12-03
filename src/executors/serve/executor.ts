@@ -9,18 +9,19 @@ import { listFiles } from "@nx/plugin/testing"
 import { executeCommand } from "../../utils/exec"
 import { getDatabaseAddresses } from "../../utils/nakama"
 import { FsTree } from "nx/src/generators/tree"
+import { posixJoin } from "../../utils/posix"
 
 export default async function* runExecutor(options: ServeExecutorSchema, context: ExecutorContext) {
   const { configFileName, migrateDatabase } = options
   const projectRoot = context.projectGraph.nodes[context.projectName].data.root
   const appsDir = getWorkspaceLayout(new FsTree(workspaceRoot, false)).appsDir
-  const outputPath = path.join("tmp", appsDir, context.projectName)
+  const outputPath = posixJoin("tmp", appsDir, context.projectName)
 
   // Create build and copy config file
   await createBuild(projectRoot, outputPath)
   copyConfigFile(projectRoot, outputPath, configFileName)
 
-  const configFile = path.join(projectRoot, configFileName)
+  const configFile = posixJoin(projectRoot, configFileName)
   const databaseAddresses = await getDatabaseAddresses(configFile)
   if (databaseAddresses.length === 0) {
     console.warn(`No database configured in ${configFile}`)
@@ -31,14 +32,14 @@ export default async function* runExecutor(options: ServeExecutorSchema, context
     for (const databaseAddress of databaseAddresses) {
       await executeCommand(
         `nakama migrate up --database.address ${databaseAddress}`,
-        path.join(workspaceRoot, outputPath)
+        posixJoin(workspaceRoot, outputPath)
       )
     }
   }
 
   yield* createAsyncIterable<{ success: boolean }>(async ({ done, next, error }) => {
     const serverProcess = spawn("nakama", ["--config " + configFileName], {
-      cwd: path.join(workspaceRoot, outputPath),
+      cwd: posixJoin(workspaceRoot, outputPath),
       shell: true,
       stdio: "inherit",
     })

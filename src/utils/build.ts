@@ -1,7 +1,7 @@
 import { workspaceRoot } from "@nx/devkit"
 import { copyFileSync } from "fs-extra"
-import * as path from "path"
 import { executeCommand } from "./exec"
+import { posixJoin } from "./posix"
 
 /**
  * Compiles the TypeScript code in the project root.
@@ -9,9 +9,9 @@ import { executeCommand } from "./exec"
  * @param outputPath The path to the output directory, relative to the workspace root.
  */
 async function createBuild(projectRoot: string, outputPath: string) {
-  const outputFile = path.join(workspaceRoot, outputPath, "data", "modules", "main.js")
+  const outputFile = posixJoin(workspaceRoot, outputPath, "data", "modules", "main.js")
   const command = `npx rollup -c --bundleConfigAsCjs --file ${outputFile}`
-  await executeCommand(command, path.join(workspaceRoot, projectRoot))
+  await executeCommand(command, posixJoin(workspaceRoot, projectRoot))
 }
 
 /**
@@ -22,8 +22,8 @@ async function createBuild(projectRoot: string, outputPath: string) {
  */
 function copyConfigFile(projectRoot: string, outputPath: string, configFileName: string) {
   copyFileSync(
-    path.join(workspaceRoot, projectRoot, configFileName),
-    path.join(workspaceRoot, outputPath, configFileName)
+    posixJoin(workspaceRoot, projectRoot, configFileName),
+    posixJoin(workspaceRoot, outputPath, configFileName)
   )
 }
 

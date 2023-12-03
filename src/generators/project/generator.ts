@@ -6,13 +6,13 @@ import {
   ProjectConfiguration,
   Tree,
 } from "@nx/devkit"
-import * as path from "path"
 import { ProjectGeneratorSchema } from "./schema"
 import { installPackage, installPackages } from "../../utils/package-manager"
+import { posixJoin } from "../../utils/posix"
 
 export async function projectGenerator(tree: Tree, options: ProjectGeneratorSchema) {
   const { name: projectName } = options
-  const projectRoot = path.join(getWorkspaceLayout(tree).appsDir, projectName)
+  const projectRoot = posixJoin(getWorkspaceLayout(tree).appsDir, projectName)
 
   addProjectConfiguration(tree, projectName, getProjectJsonContent(projectName, projectRoot))
 
@@ -32,7 +32,7 @@ export async function projectGenerator(tree: Tree, options: ProjectGeneratorSche
   ]
   await installPackages("", devDependencies, true)
 
-  generateFiles(tree, path.join(__dirname, "files"), projectRoot, options)
+  generateFiles(tree, posixJoin(__dirname, "files"), projectRoot, options)
   return formatFiles(tree)
 }
 
