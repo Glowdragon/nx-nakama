@@ -14,10 +14,13 @@ export async function projectGenerator(tree: Tree, options: ProjectGeneratorSche
   const { name: projectName } = options
   const projectRoot = posixJoin(getWorkspaceLayout(tree).appsDir, projectName)
 
+  // Create project.json
   addProjectConfiguration(tree, projectName, getProjectJsonContent(projectName, projectRoot))
 
+  // Install Nakama package
   await installPackage("", "github:heroiclabs/nakama-common", false)
 
+  // Install dev dependencies
   const devDependencies = [
     "@babel/core",
     "@babel/plugin-external-helpers",
@@ -32,7 +35,9 @@ export async function projectGenerator(tree: Tree, options: ProjectGeneratorSche
   ]
   await installPackages("", devDependencies, true)
 
+  // Copy files
   generateFiles(tree, posixJoin(__dirname, "files"), projectRoot, options)
+
   return formatFiles(tree)
 }
 
